@@ -1,4 +1,9 @@
-cv.hqreg <- function(X, y, ..., FUN = c("hqreg", "hqreg_raw"), ncores = 1, nfolds=10, fold.id, type.measure = c("deviance", "mse", "mae"), seed) {
+cv.hqreg <- function(X, y, ..., 
+                     FUN = c("hqreg", "hqreg_raw"), 
+                     parallel = F, 
+                     nfolds=10, 
+                     fold.id, 
+                     type.measure = c("deviance", "mse", "mae"), seed) {
   FUN <- get(match.arg(FUN))
   type.measure <- match.arg(type.measure)
   n <- length(y)
@@ -14,24 +19,13 @@ cv.hqreg <- function(X, y, ..., FUN = c("hqreg", "hqreg_raw"), ncores = 1, nfold
   measure.args <- list(method=fit$method, gamma=fit$gamma, tau=fit$tau, type.measure = type.measure)
   E <- matrix(NA, nrow=length(y), ncol=length(cv.args$lambda))
   
-  parallel <- FALSE
-  if (ncores > 1) {
-    max.cores <- detectCores()
-    if (ncores > max.cores) {
-      cat("The number of cores specified (", ncores, ") is larger than 
-          the number of avaiable cores (", max.cores, "), so", max.cores, "cores are used.", "\n")
-      ncores = max.cores
-    }
-    cluster <- makeCluster(ncores)
-    if (!("cluster" %in% class(cluster))) stop("Cluster is not of class 'cluster'; see ?makeCluster")
-    parallel <- TRUE
-    cat("Start parallel computing for cross-validation...")
+  if (parallel) {
+    #cat("Start parallel computing for cross-validation...")
     clusterExport(cluster, c("fold.id", "X", "y", "cv.args", "measure.args"), 
                   envir=environment())
     clusterCall(cluster, function() require(hqreg))
     fold.results <- parLapply(cl = cluster, X = 1:nfolds, fun = cvf, XX = X, y = y, 
                               fold.id = fold.id, cv.args = cv.args, measure.args = measure.args)
-    stopCluster(cluster)
   }
   
   E <- matrix(NA, nrow = n, ncol = length(cv.args$lambda))
@@ -39,7 +33,7 @@ cv.hqreg <- function(X, y, ..., FUN = c("hqreg", "hqreg_raw"), ncores = 1, nfold
     if (parallel) {
       fit.i <- fold.results[[i]]
     } else {
-      cat("CV fold #",i,sep="","\n")
+      #cat("CV fold #",i,sep="","\n")
       fit.i <- cvf(i, X, y, fold.id, cv.args, measure.args, FUN)
     }
     E[fold.id == i, 1:fit.i$nl] <- fit.i$pe

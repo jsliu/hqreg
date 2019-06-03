@@ -1,4 +1,5 @@
 #' high dimensional quantile regression
+
 #' @param x predictors
 #' @param y response
 #' @param method type of loss function
@@ -7,6 +8,7 @@
 #' @param alpha mixing parameter of elastic net
 #' @param preprocess the way to preprocess data: standardize or rescale
 #' @param penalty.factor numbers to penalise each predictor
+#' @useDynLib hqreg
 #' @export 
 hqreg <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                    preprocess = c("standardize", "rescale"),  screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 

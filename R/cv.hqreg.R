@@ -6,6 +6,7 @@
 #' @param nfolds number of folds
 #' @param fold.id id of folds
 #' @param type.measure the methods to measure the distance
+#' @useDynLib hqreg
 #' @export 
 cv.hqreg <- function(X, y, ..., 
                      FUN = c("hqreg", "hqreg_raw"), 

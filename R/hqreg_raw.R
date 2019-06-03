@@ -6,6 +6,7 @@
 #' @param tau tau used for quantile regression
 #' @param alpha mixing parameter of elastic net
 #' @param penalty.factor numbers to penalise each predictor
+#' @useDynLib hqreg
 #' @export 
 hqreg_raw <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                        intercept = TRUE, screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 

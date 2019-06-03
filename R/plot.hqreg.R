@@ -1,3 +1,6 @@
+#' plot of hqreg model 
+#' @param x hqreg model object
+#' @export
 plot.hqreg <- function(x, xvar = c("lambda", "norm"), log.l = TRUE, nvars = TRUE, alpha = 1, ...)
 {
   xvar <- match.arg(xvar)

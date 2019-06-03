@@ -1,8 +1,8 @@
-Package: hqreg
+Package: hqreg2
 Type: Package
 Title: Regularization Paths for Lasso or Elastic-Net Penalized Huber
         Loss Regression and Quantile Regression
-Version: 1.4
+Version: 1.4.1
 Date: 2017-2-15
 Author: Congrui Yi
 Maintainer: Congrui Yi <congrui-yi@uiowa.edu>
@@ -14,3 +14,4 @@ NeedsCompilation: yes
 Packaged: 2017-02-16 00:06:26 UTC; cyi
 Repository: CRAN
 Date/Publication: 2017-02-16 07:13:26
+RoxygenNote: 6.1.1

@@ -1,3 +1,8 @@
+#' predict model hqreg model
+#' @param object cross validated hqreg models
+#' @param x new data
+#' @param lambda predict at which lambda
+#' @export
 predict.hqreg <- function(object, X, lambda, type=c("response","coefficients","nvars"), exact = FALSE, ...) {
   type=match.arg(type)
   if (missing(X) && type == "response") stop("Need to supply 'X'")
@@ -28,6 +33,10 @@ predict.hqreg <- function(object, X, lambda, type=c("response","coefficients","n
   NULL
 }
 
+#' coefficient of cross validated models
+#' @param object cross validated hqreg model
+#' @param lambda a vector of lambdas
+#' @export
 coef.hqreg <- function(object, lambda, exact = FALSE, ...) {
   if (missing(lambda)) {
     beta <- object$beta

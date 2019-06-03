@@ -1,3 +1,12 @@
+#' cross validate huber/quantile regression
+#' @param x predictors
+#' @param y response
+#' @param FUN use hqreg or hqreg_raw function
+#' @param parallel use parallel computing or not
+#' @param nfolds number of folds
+#' @param fold.id id of folds
+#' @param type.measure the methods to measure the distance
+#' @export 
 cv.hqreg <- function(X, y, ..., 
                      FUN = c("hqreg", "hqreg_raw"), 
                      parallel = F, 
@@ -55,6 +64,14 @@ cv.hqreg <- function(X, y, ...,
   structure(val, class="cv.hqreg")
   }
 
+#' cross validation function
+#' @param i ith fold
+#' @param xx predictors
+#' @param y response
+#' @param fold.id id of folds
+#' @param cv.args cross validation args
+#' @param measure.args measurement arguments
+#' @param FUN function of use: hqreg or hqreg_raw
 cvf <- function(i, XX, y, fold.id, cv.args, measure.args, FUN) {
   cv.args$X <- XX[fold.id != i,,drop = FALSE]
   cv.args$y <- y[fold.id != i]

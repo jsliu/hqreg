@@ -1,3 +1,6 @@
+#' plot cross validated hqreg model
+#' @param x cross validated hqreg model
+#' @export
 plot.cv.hqreg <- function(x, log.l = TRUE, nvars = TRUE, ...)
 {
   l <- x$lambda

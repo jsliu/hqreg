@@ -1,3 +1,12 @@
+#' high dimensional quantile regression with raw data
+#' @param x predictors
+#' @param y response
+#' @param method type of loss function
+#' @param gamma gamma used for huber loss
+#' @param tau tau used for quantile regression
+#' @param alpha mixing parameter of elastic net
+#' @param penalty.factor numbers to penalise each predictor
+#' @export 
 hqreg_raw <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                        intercept = TRUE, screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 
                        dfmax = ncol(X)+1, penalty.factor=rep(1, ncol(X)), message = FALSE) {

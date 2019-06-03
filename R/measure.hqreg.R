@@ -1,3 +1,9 @@
+#' measure the function loss
+#' @param y true value
+#' @param yhat predicted value
+#' @param args arguments of type measure
+#' @export
+#' @return value of loss function
 measure.hqreg <- function(y, yhat, args) {
   r <- y-yhat
   type.measure <- args$type.measure
@@ -20,9 +26,15 @@ measure.hqreg <- function(y, yhat, args) {
   val
 }
 
+#' huber loss function
+#' @param r residual
+#' @export
 hloss <- function(r, gamma) {
   rr <- abs(r)
   ifelse(rr <= gamma, rr^2/(2*gamma), rr-gamma/2)
 }
 
+#' quantile loss function
+#' @param r residual
+#' @export
 qloss <- function(r, tau) ifelse(r <= 0, (tau-1)*r, tau*r)

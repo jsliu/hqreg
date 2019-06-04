@@ -31,11 +31,15 @@ cv.hqreg <- function(X, y, ...,
   
   if (parallel) {
     #cat("Start parallel computing for cross-validation...")
-    clusterExport(cluster, c("fold.id", "X", "y", "cv.args", "measure.args"), 
-                  envir=environment())
-    clusterCall(cluster, function() require(hqreg))
-    fold.results <- parLapply(cl = cluster, X = 1:nfolds, fun = cvf, XX = X, y = y, 
-                              fold.id = fold.id, cv.args = cv.args, measure.args = measure.args)
+    # clusterExport(cluster, c("fold.id", "X", "y", "cv.args", "measure.args"), 
+    #               envir=environment())
+    # clusterCall(cluster, function() require(hqreg))
+    # fold.results <- parLapply(cl = cluster, X = 1:nfolds, fun = cvf, XX = X, y = y, 
+    #                           fold.id = fold.id, cv.args = cv.args, measure.args = measure.args)
+
+    fold.results <- foreach(i=1:nfolds) %dopar% {
+      cvf(i,X,y,fold.id,cv.args,measure.args,FUN)
+    }
   }
   
   E <- matrix(NA, nrow = n, ncol = length(cv.args$lambda))

@@ -21,7 +21,7 @@ hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls")
   if (method == "huber" && !missing(gamma) && gamma <= 0) stop("gamma should be positive for Huber loss")
   if (method == "quantile" && (tau < 0 || tau > 1)) stop("tau should be between 0 and 1 for quantile loss")
   if (length(penalty.factor)!=ncol(X)) stop("the length of penalty.factor should equal the number of columns of X")
-  
+
   call <- match.call()
   if (intercept == TRUE) {
     XX <- cbind(1, X)

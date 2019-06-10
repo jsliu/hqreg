@@ -1,20 +1,18 @@
 #' measure the function loss
-#' @param y true value
-#' @param yhat predicted value
+#' @param r residual
+#' @param weights weights of observations
 #' @param args arguments of type measure
 #' @export
 #' @return value of loss function
-measure.hqreg <- function(y, yhat, args) {
-  r <- y-yhat
+measure.hqreg <- function(r, weights=rep(1,length(r)), args) 
+{
   type.measure <- args$type.measure
   if (type.measure == "deviance") {
     method <- args$method
     if (method == "huber") {
-      gamma <- args$gamma
-      val <- hloss(r, gamma)
+      val <- hloss(r, args$gamma)
     } else if (method == "quantile") {
-      tau <- args$tau
-      val <- qloss(r, tau)
+      val <- qloss(r, args$tau)*weights
     } else {
       val <- r^2
     }    
@@ -23,7 +21,7 @@ measure.hqreg <- function(y, yhat, args) {
   } else {
     val <- abs(r)
   }
-  val
+  return(val*weights)
 }
 
 #' huber loss function

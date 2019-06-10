@@ -2,6 +2,7 @@
 
 #' @param x predictors
 #' @param y response
+#' @param weights weights of observations
 #' @param method type of loss function
 #' @param gamma gamma used for huber loss
 #' @param tau tau used for quantile regression
@@ -10,7 +11,7 @@
 #' @param penalty.factor numbers to penalise each predictor
 #' @useDynLib hqreg
 #' @export 
-hqreg <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
+hqreg <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                    preprocess = c("standardize", "rescale"),  screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 
                    dfmax = ncol(X)+1, penalty.factor=rep(1, ncol(X)), message = FALSE) {
   
@@ -40,6 +41,16 @@ hqreg <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/1
     shift <- quantile(y, tau)
   }
   yy <- y - shift
+  
+  if (!is.null(weights) & method=="ls") {
+    xx <- xx * sqrt(weights)
+    yy <- yy * sqrt(weights)
+  }
+  
+  if (!is.null(weights) & method=="quantile") {
+    xx <- xx * weights
+    yy <- yy * weights
+  }
   
   # Flag for user-supplied lambda
   user <- 0

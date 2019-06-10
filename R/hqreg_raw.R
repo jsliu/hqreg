@@ -1,6 +1,7 @@
 #' high dimensional quantile regression with raw data
 #' @param x predictors
 #' @param y response
+#' @param weights weights of observations
 #' @param method type of loss function
 #' @param gamma gamma used for huber loss
 #' @param tau tau used for quantile regression
@@ -8,7 +9,7 @@
 #' @param penalty.factor numbers to penalise each predictor
 #' @useDynLib hqreg
 #' @export 
-hqreg_raw <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
+hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                        intercept = TRUE, screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 
                        dfmax = ncol(X)+1, penalty.factor=rep(1, ncol(X)), message = FALSE) {
   
@@ -39,6 +40,16 @@ hqreg_raw <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(
   n <- nrow(XX)
   p <- ncol(XX)
   yy <- y - shift
+  
+  if (!is.null(weights) & method=="ls") {
+    XX <- XX * sqrt(weights)
+    yy <- yy * sqrt(weights)
+  }
+  
+  if (!is.null(weights) & method=="quantile") {
+    XX <- XX * weights
+    yy <- yy * weights
+  }
   
   # Flag for user-supplied lambda
   user <- 0

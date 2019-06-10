@@ -4,12 +4,12 @@
 \alias{measure.hqreg}
 \title{measure the function loss}
 \usage{
-measure.hqreg(y, yhat, args)
+measure.hqreg(r, weights = rep(1, length(r)), args)
 }
 \arguments{
-\item{y}{true value}
+\item{r}{residual}
 
-\item{yhat}{predicted value}
+\item{weights}{weights of observations}
 
 \item{args}{arguments of type measure}
 }

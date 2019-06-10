@@ -4,7 +4,7 @@
 \alias{hqreg_raw}
 \title{high dimensional quantile regression with raw data}
 \usage{
-hqreg_raw(X, y, method = c("huber", "quantile", "ls"),
+hqreg_raw(X, y, weights = NULL, method = c("huber", "quantile", "ls"),
   gamma = IQR(y)/10, tau = 0.5, alpha = 1, nlambda = 100,
   lambda.min = 0.05, lambda, intercept = TRUE, screen = c("ASR",
   "SR", "none"), max.iter = 10000, eps = 1e-07, dfmax = ncol(X) + 1,
@@ -12,6 +12,8 @@ hqreg_raw(X, y, method = c("huber", "quantile", "ls"),
 }
 \arguments{
 \item{y}{response}
+
+\item{weights}{weights of observations}
 
 \item{method}{type of loss function}
 

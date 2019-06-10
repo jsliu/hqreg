@@ -1,5 +1,5 @@
 #' predict model hqreg model
-#' @param object cross validated hqreg models
+#' @param object hqreg models
 #' @param x new data
 #' @param lambda predict at which lambda
 #' @export

@@ -8,7 +8,7 @@
   "coefficients", "nvars"), exact = FALSE, ...)
 }
 \arguments{
-\item{object}{cross validated hqreg models}
+\item{object}{hqreg models}
 
 \item{lambda}{predict at which lambda}
 

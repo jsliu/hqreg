@@ -1,6 +1,7 @@
 #' cross validate huber/quantile regression
 #' @param x predictors
 #' @param y response
+#' @param weights weights of observations
 #' @param FUN use hqreg or hqreg_raw function
 #' @param parallel use parallel computing or not
 #' @param nfolds number of folds
@@ -8,7 +9,7 @@
 #' @param type.measure the methods to measure the distance
 #' @useDynLib hqreg
 #' @export 
-cv.hqreg <- function(X, y, ..., 
+cv.hqreg <- function(X, y, weights, ..., 
                      FUN = c("hqreg", "hqreg_raw"), 
                      parallel = F, 
                      nfolds=10, 
@@ -20,7 +21,7 @@ cv.hqreg <- function(X, y, ...,
   if (!missing(seed)) set.seed(seed)
   if(missing(fold.id)) fold.id <- ceiling(sample(1:n)/n*nfolds)
   
-  fit <- FUN(X, y, ...)
+  fit <- FUN(X, y, weights, ...)
   cv.args <- list(...)
   cv.args$lambda <- fit$lambda
   cv.args$alpha <- fit$alpha
@@ -28,7 +29,7 @@ cv.hqreg <- function(X, y, ...,
   cv.args$tau <- fit$tau
   measure.args <- list(method=fit$method, gamma=fit$gamma, tau=fit$tau, type.measure = type.measure)
   E <- matrix(NA, nrow=length(y), ncol=length(cv.args$lambda))
-  
+browser()  
   if (parallel) {
     #cat("Start parallel computing for cross-validation...")
     # clusterExport(cluster, c("fold.id", "X", "y", "cv.args", "measure.args"), 
@@ -38,7 +39,7 @@ cv.hqreg <- function(X, y, ...,
     #                           fold.id = fold.id, cv.args = cv.args, measure.args = measure.args)
 
     fold.results <- foreach(i=1:nfolds) %dopar% {
-      cvf(i,X,y,fold.id,cv.args,measure.args,FUN)
+      cvf(i,X,y,weights,fold.id,cv.args,measure.args,FUN)
     }
   }
   
@@ -48,7 +49,7 @@ cv.hqreg <- function(X, y, ...,
       fit.i <- fold.results[[i]]
     } else {
       #cat("CV fold #",i,sep="","\n")
-      fit.i <- cvf(i, X, y, fold.id, cv.args, measure.args, FUN)
+      fit.i <- cvf(i,X,y,weights,fold.id,cv.args,measure.args,FUN)
     }
     E[fold.id == i, 1:fit.i$nl] <- fit.i$pe
   }
@@ -73,13 +74,15 @@ cv.hqreg <- function(X, y, ...,
 #' @param i ith fold
 #' @param xx predictors
 #' @param y response
+#' @param weights weights of observations
 #' @param fold.id id of folds
 #' @param cv.args cross validation args
 #' @param measure.args measurement arguments
 #' @param FUN function of use: hqreg or hqreg_raw
-cvf <- function(i, XX, y, fold.id, cv.args, measure.args, FUN) {
+cvf <- function(i, XX, y, weights, fold.id, cv.args, measure.args, FUN) {
   cv.args$X <- XX[fold.id != i,,drop = FALSE]
   cv.args$y <- y[fold.id != i]
+  cv.args$weights <- weights[fold.id !=i]
   X2 <- XX[fold.id == i,,drop = FALSE]
   y2 <- y[fold.id == i]
   fit.i <- do.call(FUN, cv.args)

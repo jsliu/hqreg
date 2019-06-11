@@ -4,12 +4,14 @@
 \alias{cv.hqreg}
 \title{cross validate huber/quantile regression}
 \usage{
-cv.hqreg(X, y, ..., FUN = c("hqreg", "hqreg_raw"), parallel = F,
-  nfolds = 10, fold.id, type.measure = c("deviance", "mse", "mae"),
-  seed)
+cv.hqreg(X, y, weights, ..., FUN = c("hqreg", "hqreg_raw"),
+  parallel = F, nfolds = 10, fold.id, type.measure = c("deviance",
+  "mse", "mae"), seed)
 }
 \arguments{
 \item{y}{response}
+
+\item{weights}{weights of observations}
 
 \item{FUN}{use hqreg or hqreg_raw function}
 

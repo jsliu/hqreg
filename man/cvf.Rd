@@ -4,12 +4,14 @@
 \alias{cvf}
 \title{cross validation function}
 \usage{
-cvf(i, XX, y, fold.id, cv.args, measure.args, FUN)
+cvf(i, XX, y, weights, fold.id, cv.args, measure.args, FUN)
 }
 \arguments{
 \item{i}{ith fold}
 
 \item{y}{response}
+
+\item{weights}{weights of observations}
 
 \item{fold.id}{id of folds}
 

@@ -29,7 +29,7 @@ cv.hqreg <- function(X, y, weights, ...,
   cv.args$tau <- fit$tau
   measure.args <- list(method=fit$method, gamma=fit$gamma, tau=fit$tau, type.measure = type.measure)
   E <- matrix(NA, nrow=length(y), ncol=length(cv.args$lambda))
-browser()  
+ 
   if (parallel) {
     #cat("Start parallel computing for cross-validation...")
     # clusterExport(cluster, c("fold.id", "X", "y", "cv.args", "measure.args"), 
@@ -85,7 +85,10 @@ cvf <- function(i, XX, y, weights, fold.id, cv.args, measure.args, FUN) {
   cv.args$weights <- weights[fold.id !=i]
   X2 <- XX[fold.id == i,,drop = FALSE]
   y2 <- y[fold.id == i]
+  weights2 <- weights[fold.id == i]
+  
   fit.i <- do.call(FUN, cv.args)
-  yhat <- matrix(predict.hqreg(fit.i, X2), length(y2))
-  list(pe = measure.hqreg(y2, yhat, measure.args), nl = length(fit.i$lambda))
+  yhat <- matrix(predict(fit.i, X2), length(y2))
+  
+  list(pe = measure.hqreg(y2-yhat, weights2, measure.args), nl = length(fit.i$lambda))
 }

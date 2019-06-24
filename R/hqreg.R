@@ -47,6 +47,14 @@ hqreg <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls"), ga
     yy <- yy * sqrt(weights)
   }
   
+  if (any(weights)<0) {
+    stop("Error: weights must be positive.")
+  }
+  
+  if (!is.null(weights)) {
+    weights <- weights/max(weights)
+  }
+  
   if (!is.null(weights) & method=="quantile") {
     xx <- xx * weights
     yy <- yy * weights

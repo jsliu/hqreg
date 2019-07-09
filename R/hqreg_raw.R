@@ -41,10 +41,7 @@ hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls")
   p <- ncol(XX)
   yy <- y - shift
   
-  if (any(weights<0)) {
-    stop("Error: weights must be positive.")
-  }
-  
+  # adjusted by weights
   if (!is.null(weights)) {
     weights <- weights/max(weights)
   }
@@ -57,6 +54,10 @@ hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls")
   if (!is.null(weights) & method=="quantile") {
     XX <- XX * weights
     yy <- yy * weights
+  }
+  
+  if (any(weights<0)) {
+    stop("Error: weights must be positive.")
   }
   
   # Flag for user-supplied lambda

@@ -12,16 +12,16 @@ measure.hqreg <- function(r, weights=rep(1,length(r)), args)
     if (method == "huber") {
       val <- hloss(r, args$gamma)
     } else if (method == "quantile") {
-      val <- qloss(r, args$tau)*weights
+      val <- qloss(r, args$tau)
     } else {
-      val <- (r*weights)^2
+      val <- r^2
     }    
   } else if (type.measure == "mse") {
-    val <- (r*weights)^2
+    val <- r^2
   } else {
-    val <- abs(r*weights)
+    val <- abs(r)
   }
-  return(val)
+  return(val*weights)
 }
 
 #' huber loss function

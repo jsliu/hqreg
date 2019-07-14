@@ -40,7 +40,7 @@ hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls")
   n <- nrow(XX)
   p <- ncol(XX)
   yy <- y - shift
-  
+ 
   # adjusted by weights
   if (!is.null(weights)) {
     weights <- weights/max(weights)

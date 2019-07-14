@@ -9,7 +9,7 @@
 #' @param penalty.factor numbers to penalise each predictor
 #' @useDynLib hqreg
 #' @export 
-hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
+hqreg_raw <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                        intercept = TRUE, screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 
                        dfmax = ncol(X)+1, penalty.factor=rep(1, ncol(X)), message = FALSE) {
   
@@ -22,42 +22,38 @@ hqreg_raw <- function (X, y, weights=NULL, method = c("huber", "quantile", "ls")
   if (method == "quantile" && (tau < 0 || tau > 1)) stop("tau should be between 0 and 1 for quantile loss")
   if (length(penalty.factor)!=ncol(X)) stop("the length of penalty.factor should equal the number of columns of X")
   
+  if (any(weights<0)) {
+    stop("Error: weights must be positive.")
+  }
+  
+  weights <- weights/sum(weights)
+  if(method=="ls") wei <- sqrt(weights)
+  if(method=="quantile") wei <- weights
+  
   call <- match.call()
   if (intercept == TRUE) {
-    XX <- cbind(1, X)
+    XX <- cbind(1, X)*wei
     penalty.factor <- c(0, penalty.factor) # no penalty for intercept
     if (method == "huber") {
       shift <- if(gamma > sd(y)) mean(y) else median(y)
     } else if (method == "ls") {
-      shift <- mean(y)
+      shift <- Hmisc::wtd.mean(y, weights = wei)
     } else if (method == "quantile") {
-      shift <- quantile(y, tau)
+      shift <- Hmisc::wtd.quantile(y, q=tau, weights = wei)
     }
   } else {
-    XX <- X
+    XX <- X*wei
     shift <- 0
   }
+  
+  yy <- y*wei - shift
+  
   n <- nrow(XX)
   p <- ncol(XX)
-  yy <- y - shift
- 
+
   # adjusted by weights
   if (!is.null(weights)) {
     weights <- weights/max(weights)
-  }
-  
-  if (!is.null(weights) & method=="ls") {
-    XX <- XX * sqrt(weights)
-    yy <- yy * sqrt(weights)
-  }
-  
-  if (!is.null(weights) & method=="quantile") {
-    XX <- XX * weights
-    yy <- yy * weights
-  }
-  
-  if (any(weights<0)) {
-    stop("Error: weights must be positive.")
   }
   
   # Flag for user-supplied lambda

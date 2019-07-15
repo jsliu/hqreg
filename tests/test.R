@@ -11,5 +11,5 @@ x <- as.matrix(x)
 y <- y[,ydata]
 w <- w[,weights]/w[,max(weights)]
 
-out <- hqreg_raw(x,y,w, method="quantile")
+out <- hqreg(x,y,w, method="quantile")
 out2 <- cv.rq.pen(x,y,w,criteria = "BIC")

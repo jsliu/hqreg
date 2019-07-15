@@ -46,7 +46,7 @@ hqreg <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile
   } else if (method == "ls") {
     shift <- Hmisc::wtd.mean(y, weights = wei)
   } else if (method == "quantile") {
-    shift <- Hmisc::wtd.quantile(y, q=tau, weights = wei)
+    shift <- Hmisc::wtd.quantile(y, probs=tau, weights = wei)
   }
   yy <- y*wei - shift
   

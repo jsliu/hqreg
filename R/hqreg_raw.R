@@ -8,6 +8,7 @@
 #' @param alpha mixing parameter of elastic net
 #' @param penalty.factor numbers to penalise each predictor
 #' @useDynLib hqreg
+#' @import Hmisc
 #' @export 
 hqreg_raw <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                        intercept = TRUE, screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 
@@ -29,32 +30,32 @@ hqreg_raw <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quan
   weights <- weights/sum(weights)
   if(method=="ls") wei <- sqrt(weights)
   if(method=="quantile") wei <- weights
+
+  X <- apply(X,2,weighted.standardise, weights=wei)
   
   call <- match.call()
   if (intercept == TRUE) {
-    XX <- cbind(1, X)*wei
+    XX <- cbind(1, X)
     penalty.factor <- c(0, penalty.factor) # no penalty for intercept
     if (method == "huber") {
       shift <- if(gamma > sd(y)) mean(y) else median(y)
     } else if (method == "ls") {
-      shift <- Hmisc::wtd.mean(y, weights = wei)
+      shift <- wtd.mean(y, weights = wei)
+      std <- sqrt(wtd.var(y, weights = wei))
     } else if (method == "quantile") {
-      shift <- Hmisc::wtd.quantile(y, probs=tau, weights = wei)
+      shift <- wtd.quantile(y, probs=tau, weights = wei)
+      std <- sqrt(wtd.var(y, weights = wei))
     }
   } else {
-    XX <- X*wei
+    XX <- X
     shift <- 0
+    std <- 1
   }
   
-  yy <- y*wei - shift
+  yy <- (y - shift)/std
   
   n <- nrow(XX)
   p <- ncol(XX)
-
-  # adjusted by weights
-  if (!is.null(weights)) {
-    weights <- weights/max(weights)
-  }
   
   # Flag for user-supplied lambda
   user <- 0
@@ -64,7 +65,7 @@ hqreg_raw <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quan
     nlambda <- length(lambda)
     user <- 1
   }
-  
+   
   # Flags for preprocessing and screening
   ppflag = 0 # no preprocessing
   scrflag = switch(screen, ASR = 1, SR = 2, none = 0)

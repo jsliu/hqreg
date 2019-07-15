@@ -2,7 +2,6 @@
 
 #' @param x predictors
 #' @param y response
-#' @param weights weights of observations
 #' @param method type of loss function
 #' @param gamma gamma used for huber loss
 #' @param tau tau used for quantile regression
@@ -11,7 +10,7 @@
 #' @param penalty.factor numbers to penalise each predictor
 #' @useDynLib hqreg
 #' @export 
-hqreg <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
+hqreg <- function (X, y, method = c("huber", "quantile", "ls"), gamma = IQR(y)/10, tau = 0.5, alpha=1, nlambda=100, lambda.min = 0.05, lambda, 
                    preprocess = c("standardize", "rescale"),  screen = c("ASR", "SR", "none"), max.iter = 10000, eps = 1e-7, 
                    dfmax = ncol(X)+1, penalty.factor=rep(1, ncol(X)), message = FALSE) {
   
@@ -25,18 +24,10 @@ hqreg <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile
   if (method == "quantile" && (tau < 0 || tau > 1)) stop("tau should be between 0 and 1 for quantile loss")
   if (length(penalty.factor)!=ncol(X)) stop("the length of penalty.factor should equal the number of columns of X")
   
-  if (any(weights)<0) {
-    stop("Error: weights must be positive.")
-  }
-  
-  weights <- weights/sum(weights)
-  if(method=="ls") wei <- sqrt(weights)
-  if(method=="quantile") wei <- weights
-  
   call <- match.call()
   # Include a column for intercept
   n <- nrow(X)
-  XX <- cbind(rep(1,n), X)*wei
+  XX <- cbind(rep(1,n), X)
   penalty.factor <- c(0, penalty.factor) # no penalty for intercept term
   p <- ncol(XX)
   
@@ -44,12 +35,12 @@ hqreg <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile
   if (method == "huber") {
     shift <- if(gamma > sd(y)) mean(y) else median(y)
   } else if (method == "ls") {
-    shift <- Hmisc::wtd.mean(y, weights = wei)
+    shift <- mean(y)
   } else if (method == "quantile") {
-    shift <- Hmisc::wtd.quantile(y, probs=tau, weights = wei)
+    shift <- quantile(y, tau)
   }
-  yy <- y*wei - shift
-  
+  yy <- y - shift
+
   # Flag for user-supplied lambda
   user <- 0
   if (missing(lambda)) {
@@ -110,7 +101,7 @@ hqreg <- function (X, y, weights=rep(1,length(y)), method = c("huber", "quantile
   
   # Intercept
   beta[1,] <- beta[1,] + shift
-  
+ 
   # Names
   vnames <- colnames(X)
   if (is.null(vnames)) vnames=paste0("V",seq(p-1))
